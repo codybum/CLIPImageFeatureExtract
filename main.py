@@ -1,13 +1,16 @@
 import argparse
 import json
 
+import torch
 from PIL import Image
 from pathlib import Path
 from transformers import AutoProcessor, CLIPModel
 
 def get_model_processor(args):
 
-    model = CLIPModel.from_pretrained(args.model_path)
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+    model = CLIPModel.from_pretrained(args.model_path).to(device)
     processor = AutoProcessor.from_pretrained(args.model_path)
 
     return model, processor
