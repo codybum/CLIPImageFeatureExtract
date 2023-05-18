@@ -9,17 +9,16 @@ from transformers import AutoProcessor, CLIPModel
 def get_model_processor(args):
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-
     model = CLIPModel.from_pretrained(args.model_path).to(device)
     processor = AutoProcessor.from_pretrained(args.model_path)
 
-    return model, processor
+    return device, model, processor
 
-def get_feature(model, processor, file):
+def get_feature(device, model, processor, file):
     feature_array = None
     try:
         image = Image.open(file)
-        inputs = processor(images=image, return_tensors="pt")
+        inputs = processor(images=image, return_tensors="pt").to(device)
 
         image_features = model.get_image_features(**inputs)
         feature_array = image_features.cpu().detach().numpy()[0].tolist()
@@ -28,7 +27,7 @@ def get_feature(model, processor, file):
         print('Unable to process:', file)
         traceback.print_exc(file=sys.stdout)
 
-        
+
     return feature_array
 
 if __name__ == '__main__':
@@ -50,12 +49,12 @@ if __name__ == '__main__':
     if len(canidate_files) > 0:
 
         #get models
-        model,processor = get_model_processor(args)
+        device, model,processor = get_model_processor(args)
 
         for file_path in canidate_files:
             file_path = str(file_path)
             #get features
-            feature_array = get_feature(model, processor, file_path)
+            feature_array = get_feature(device, model, processor, file_path)
             if feature_array is not None:
                 print('extracted features:', file_path)
                 feature_data = dict()
