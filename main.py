@@ -1,6 +1,6 @@
 import argparse
 import json
-
+import sys, traceback
 import torch
 from PIL import Image
 from pathlib import Path
@@ -24,9 +24,10 @@ def get_feature(model, processor, file):
         image_features = model.get_image_features(**inputs)
         feature_array = image_features.cpu().detach().numpy()[0].tolist()
 
-    except:
+    except Exception:
         print('Unable to process:', file)
-
+        traceback.print_exc(file=sys.stdout)
+        
     return feature_array
 
 if __name__ == '__main__':
