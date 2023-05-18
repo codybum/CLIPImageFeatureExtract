@@ -27,6 +27,7 @@ def get_feature(model, processor, file):
     except Exception:
         print('Unable to process:', file)
         traceback.print_exc(file=sys.stdout)
+
         
     return feature_array
 
